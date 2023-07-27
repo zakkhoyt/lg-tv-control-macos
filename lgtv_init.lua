@@ -233,16 +233,16 @@ tap = hs.eventtap.new({ hs.eventtap.event.types.keyDown, hs.eventtap.event.types
   end
 
   if system_key.down and (keys_to_commands[pressed_key] ~= nil) then
-    -- If key is MUTE, decipher if we need to send unmute or mute or unmute command
+    -- If key is MUTE, decipher if we need to send unmute or mute command
     if pressed_key == 'MUTE' then
       -- toggle mute_status, possibly modify pressed_key
       mute_status = not mute_status
       if not mute_status then 
+        -- UNMUTE isn't a real key, but serves to look up the correct command
         pressed_key = 'UNMUTE'
       end
     end
 
-    log_d("-- pressed_key: "..tostring(pressed_key)..".")
     log_d("-- keys_to_commands['"..tostring(pressed_key).."'] "..tostring(keys_to_commands[pressed_key])..".")
     log_d("-- will execute_command for "..pressed_key..": "..keys_to_commands[pressed_key].."")
     exec_command(keys_to_commands[pressed_key])
