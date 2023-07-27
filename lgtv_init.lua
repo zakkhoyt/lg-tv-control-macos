@@ -237,25 +237,13 @@ tap = hs.eventtap.new({ hs.eventtap.event.types.keyDown, hs.eventtap.event.types
 
     -- If key is MUTE, decipher if we need to send unmute or mute or unmute command
     if pressed_key == 'MUTE' then
-      -- [X] Can we cache this so we don't need to make 2 exec_command calls?
-      -- log_d("Will fetch mute_status...")
-      -- local audio_status = hs.json.decode(exec_command("audioStatus"):gmatch('%b{}')())
-      -- local mute_status = audio_status["payload"]["mute"]
-      -- log_d("Did fetch mute_status: "..(tostring(mute_status) or "<nil>").."")
-
       -- invert our mute status.
       mute_status = not mute_status
-      
 
       -- insert the mute/unmute command into the look up table
       local mute_command = "mute "..tostring(mute_status)
       keys_to_commands['MUTE'] = mute_command
       log_d("keys_to_commands['MUTE'] "..tostring(keys_to_commands['MUTE'])..".")
-
-
-      -- log_d("will execute_command for mute_command: "..(mute_command or "<nil>").."")
-      -- exec_command("mute "..tostring(not mute_status))
-    -- else
     end
 
     log_d("will execute_command for "..pressed_key..": "..keys_to_commands[pressed_key].."")
@@ -266,10 +254,13 @@ end)
 watcher:start()
 
 if not disable_audio_control then
+  -- Query the TV's mute status then cache as a global so that we don't need to
+  -- execute a query on each keypress.
   log_d("Will fetch initial mute_status...")
   local audio_status = hs.json.decode(exec_command("audioStatus"):gmatch('%b{}')())
   mute_status = audio_status["payload"]["mute"]
   log_d("Did fetch initial mute_status: "..(tostring(mute_status) or "<nil>").."")
 
+  -- Start listening for keypress events. 
   tap:start()
 end
