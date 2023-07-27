@@ -233,13 +233,6 @@ tap = hs.eventtap.new({ hs.eventtap.event.types.keyDown, hs.eventtap.event.types
   end
 
   if system_key.down and (keys_to_commands[pressed_key] ~= nil) then
-    -- -- TODO: Can we reject repeat key (holding down the key)?
-    -- -- Ignore repeat keypress (holding down the key)
-    -- if system_key["repeat"] then 
-    --   log_d("Ignoring repeat for pressed_key: "..tostring(pressed_key)..".")
-    --   return
-    -- end
-    
     -- If key is MUTE, decipher if we need to send unmute or mute or unmute command
     if pressed_key == 'MUTE' then
       -- toggle mute_status, possibly modify pressed_key
@@ -259,15 +252,11 @@ end)
 watcher:start()
 
 if not disable_audio_control then
-  -- Query the TV's mute status then cache as a global so that we don't need to
-  -- execute a query on each keypress.
-  log_d("Will fetch initial mute_status...")
+  -- Query the TV's mute status and store so that we don't need to
+  -- execute a query on each mute key press.
   local audio_status = hs.json.decode(exec_command("audioStatus"):gmatch('%b{}')())
   mute_status = audio_status["payload"]["mute"]
-  log_d("Did fetch initial mute_status: "..(tostring(mute_status) or "<nil>").."")
-
-  -- [ ] What if computer is muted and TV is not? Can we query for this and align them?
-  -- [ ] What if computer volume is say, 2% and the TV volume is say 25%. Can we query for this and align them?
+  log_d("Initial mute_status: "..(tostring(mute_status) or "<nil>").."")
  
   -- Start listening for keypress events. 
   tap:start()
