@@ -15,6 +15,7 @@ local lgtv_path = "~/opt/lgtv/bin/lgtv" -- Full path to lgtv executable
 local lgtv_cmd = lgtv_path.." "..tv_name
 local app_id = "com.webos.app."..tv_input:lower():gsub("_", "")
 local lgtv_ssl = true -- Required for firmware 03.30.16 and up. Also requires LGWebOSRemote version 2023-01-27 or newer.
+local mute_status = false -- caches our muted state
 
 -- A convenience function for printing debug messages. 
 function log_d(message)
@@ -50,7 +51,8 @@ function tv_is_current_audio_device()
 
   for i, v in ipairs(connected_tv_identifiers) do
     if current_audio_device == v then
-      log_d(v.." is the current audio device")
+      -- [ ] Dont' print this every time the function is called
+      -- log_d(v.." is the current audio device (["..tostring(i).."])")
       return true
     end
   end
@@ -215,11 +217,12 @@ watcher = hs.caffeinate.watcher.new(
 
 -- [ ] TV audio GUI vs mac audio GUI (misaligned)
 -- [ ] Can we reject repeat key (holding down the key)?
+-- Listen for key press events. Specifically volumeUp, volumeDown, and mute keys. 
 tap = hs.eventtap.new({ hs.eventtap.event.types.keyDown, hs.eventtap.event.types.systemDefined }, function(event)
   local event_type = event:getType()
   local system_key = event:systemKey()  
   local pressed_key = system_key.key
-  log_d("keypress event_type: "..(event_type or "<nil>").." pressed_key: "..(pressed_key or "<nil>").."")
+  -- log_d("keypress event_type: "..(event_type or "<nil>").." pressed_key: "..(pressed_key or "<nil>").."")
 
   -- reject key press events that we aren't interested in. 
   if event_type ~= hs.eventtap.event.types.systemDefined or not tv_is_current_audio_device() then
@@ -232,25 +235,30 @@ tap = hs.eventtap.new({ hs.eventtap.event.types.keyDown, hs.eventtap.event.types
   local keys_to_commands = {['SOUND_UP']="volumeUp", ['SOUND_DOWN']="volumeDown"}
   if system_key.down and (pressed_key == 'MUTE' or keys_to_commands[pressed_key] ~= nil) then
 
-    -- If key is MUTE, decipher if we need to send unmute or mute
+    -- If key is MUTE, decipher if we need to send unmute or mute or unmute command
     if pressed_key == 'MUTE' then
-      -- [ ] Can we cache this so we don't need to make 2 exec_command calls?
-      log_d("Will fetch mute_status...")
-      local audio_status = hs.json.decode(exec_command("audioStatus"):gmatch('%b{}')())
-      local mute_status = audio_status["payload"]["mute"]
-      log_d("Did fetch mute_status: "..(tostring(mute_status) or "<nil>").."")
+      -- [X] Can we cache this so we don't need to make 2 exec_command calls?
+      -- log_d("Will fetch mute_status...")
+      -- local audio_status = hs.json.decode(exec_command("audioStatus"):gmatch('%b{}')())
+      -- local mute_status = audio_status["payload"]["mute"]
+      -- log_d("Did fetch mute_status: "..(tostring(mute_status) or "<nil>").."")
+
+      -- invert our mute status.
+      mute_status = not mute_status
+      
 
       -- insert the mute/unmute command into the look up table
-      local mute_command = "mute "..tostring(not mute_status)
+      local mute_command = "mute "..tostring(mute_status)
       keys_to_commands['MUTE'] = mute_command
-      -- log_d("keys_to_commands['MUTE'] "..tostring(keys_to_commands['MUTE'])..".")
+      log_d("keys_to_commands['MUTE'] "..tostring(keys_to_commands['MUTE'])..".")
+
 
       -- log_d("will execute_command for mute_command: "..(mute_command or "<nil>").."")
       -- exec_command("mute "..tostring(not mute_status))
     -- else
     end
 
-    log_d("will execute_command for "..pressed_key..".")
+    log_d("will execute_command for "..pressed_key..": "..keys_to_commands[pressed_key].."")
     exec_command(keys_to_commands[pressed_key])
   end
 end)
@@ -258,5 +266,10 @@ end)
 watcher:start()
 
 if not disable_audio_control then
+  log_d("Will fetch initial mute_status...")
+  local audio_status = hs.json.decode(exec_command("audioStatus"):gmatch('%b{}')())
+  mute_status = audio_status["payload"]["mute"]
+  log_d("Did fetch initial mute_status: "..(tostring(mute_status) or "<nil>").."")
+
   tap:start()
 end
