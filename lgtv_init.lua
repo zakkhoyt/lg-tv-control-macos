@@ -221,6 +221,10 @@ watcher = hs.caffeinate.watcher.new(
   end
 )
 
+-- TODO: [ ] Send bigger volume changes with modified keys (EX: cmd+volumeUp)
+-- TODO:     We might cache the volume level to help accomplish this. 
+-- TODO: [ ] Read system volume/mute, sync with TV (not sure if hammerspoon provides a way to read that)
+
 -- Listen for key press events. Specifically volumeUp, volumeDown, and mute keys. 
 tap = hs.eventtap.new({ hs.eventtap.event.types.keyDown, hs.eventtap.event.types.systemDefined }, function(event)
   local event_type = event:getType()
