@@ -2,9 +2,8 @@ local tv_input = "HDMI_2" -- Input to which your Mac is connected
 local switch_input_on_wake = true -- Switch input to Mac when waking the TV
 local prevent_sleep_when_using_other_input = true -- Prevent sleep when TV is set to other input (ie: you're watching Netflix and your Mac goes to sleep)
 local debug = true -- If you run into issues, set to true to enable debug messages
--- local debug_log_file = "~/.hammerspoon/lgtv_"..tv_name..".log"
-local debug_log_dir = "~/.hammerspoon/lgtv/logs"
 local disable_lgtv = false
+local disable_audio_control = false -- Ignore volume and mute button events for controlling TV audio
 -- NOTE: You can disable this script by setting the above variable to true, or by creating a file named
 -- `disable_lgtv` in the same directory as this file, or at ~/.disable_lgtv.
 
@@ -16,31 +15,6 @@ local lgtv_path = "~/opt/lgtv/bin/lgtv" -- Full path to lgtv executable
 local lgtv_cmd = lgtv_path.." "..tv_name
 local app_id = "com.webos.app."..tv_input:lower():gsub("_", "")
 local lgtv_ssl = true -- Required for firmware 03.30.16 and up. Also requires LGWebOSRemote version 2023-01-27 or newer.
-
-
-
--- Override Hammerspoon's print with print that logs to file, not just HS console.
--- Source: https://github.com/Hammerspoon/hammerspoon/issues/1684#issuecomment-720039668
--- See print() definition in https://github.com/Hammerspoon/hammerspoon/blob/master/extensions/_coresetup/init.lua
--- Expand ~, compute log file name, and make sure dir exists. 
-debug_log_dir = debug_log_dir:gsub("~", os.getenv("HOME"))
-debug_log_file = debug_log_dir.."/"..tv_name..".log"
-os.execute("mkdir -p "..debug_log_dir)
-debug_log_file_handle = assert(io.open(debug_log_file, "a"))
-debug_log_file_handle:setvbuf("line")
-local old_print = print -- Save us from recursion overflow
-print = function(...)
-    -- Convert params into a string
-    local vals = table.pack(...)
-    for k = 1, vals.n do
-      vals[k] = tostring(vals[k])
-    end
-
-    -- Write to log file and print (adding a timestamp to the log file to match hammerspoon)
-    local l = table.concat(vals, "\t")
-    debug_log_file_handle:write(os.date("%Y-%m-%d %H:%M:%S").." "..l, '\n')
-    return old_print(l)
-end
 
 -- A convenience function for printing debug messages. 
 function log_d(message)
@@ -68,6 +42,20 @@ function tv_is_connected()
   end
 
   log_d("No screens are connected")
+  return false
+end
+
+function tv_is_current_audio_device()
+  local current_audio_device = hs.audiodevice.current().name
+
+  for i, v in ipairs(connected_tv_identifiers) do
+    if current_audio_device == v then
+      log_d(v.." is the current audio device")
+      return true
+    end
+  end
+
+  log_d(current_audio_device.." is the current audio device.")
   return false
 end
 
@@ -153,8 +141,6 @@ function event_type_description(event_type)
 end
 
 if debug then
-  log_d("debug_log_dir: "..debug_log_dir)
-  log_d("debug_log_file: "..debug_log_file)
   log_d("TV name: "..tv_name)
   log_d("TV input: "..tv_input)
   log_d("LGTV path: "..lgtv_path)
@@ -225,4 +211,52 @@ watcher = hs.caffeinate.watcher.new(
     end
   end
 )
+
+
+-- [ ] TV audio GUI vs mac audio GUI (misaligned)
+-- [ ] Can we reject repeat key (holding down the key)?
+tap = hs.eventtap.new({ hs.eventtap.event.types.keyDown, hs.eventtap.event.types.systemDefined }, function(event)
+  local event_type = event:getType()
+  local system_key = event:systemKey()  
+  local pressed_key = system_key.key
+  log_d("keypress event_type: "..(event_type or "<nil>").." pressed_key: "..(pressed_key or "<nil>").."")
+
+  -- reject key press events that we aren't interested in. 
+  if event_type ~= hs.eventtap.event.types.systemDefined or not tv_is_current_audio_device() then
+    log_d("keypress context is not audio related. Bailing.")
+    return
+  end
+
+  -- [ ] Can we store this LUT as a global (with up/down/mute/unmute)
+  -- A look up table from keyboard key name to LGTV command
+  local keys_to_commands = {['SOUND_UP']="volumeUp", ['SOUND_DOWN']="volumeDown"}
+  if system_key.down and (pressed_key == 'MUTE' or keys_to_commands[pressed_key] ~= nil) then
+
+    -- If key is MUTE, decipher if we need to send unmute or mute
+    if pressed_key == 'MUTE' then
+      -- [ ] Can we cache this so we don't need to make 2 exec_command calls?
+      log_d("Will fetch mute_status...")
+      local audio_status = hs.json.decode(exec_command("audioStatus"):gmatch('%b{}')())
+      local mute_status = audio_status["payload"]["mute"]
+      log_d("Did fetch mute_status: "..(tostring(mute_status) or "<nil>").."")
+
+      -- insert the mute/unmute command into the look up table
+      local mute_command = "mute "..tostring(not mute_status)
+      keys_to_commands['MUTE'] = mute_command
+      -- log_d("keys_to_commands['MUTE'] "..tostring(keys_to_commands['MUTE'])..".")
+
+      -- log_d("will execute_command for mute_command: "..(mute_command or "<nil>").."")
+      -- exec_command("mute "..tostring(not mute_status))
+    -- else
+    end
+
+    log_d("will execute_command for "..pressed_key..".")
+    exec_command(keys_to_commands[pressed_key])
+  end
+end)
+
 watcher:start()
+
+if not disable_audio_control then
+  tap:start()
+end
