@@ -16,6 +16,13 @@ local lgtv_cmd = lgtv_path.." "..tv_name
 local app_id = "com.webos.app."..tv_input:lower():gsub("_", "")
 local lgtv_ssl = true -- Required for firmware 03.30.16 and up. Also requires LGWebOSRemote version 2023-01-27 or newer.
 local mute_status = false -- caches our muted state
+-- A look up table from keyboard key to LGTV volume command
+local keys_to_commands = {
+  ['SOUND_UP']="volumeUp", 
+  ['SOUND_DOWN']="volumeDown",
+  ['MUTE']="mute true",
+  ['UNMUTE']="mute false"
+}
 
 -- A convenience function for printing debug messages. 
 function log_d(message)
@@ -222,31 +229,25 @@ tap = hs.eventtap.new({ hs.eventtap.event.types.keyDown, hs.eventtap.event.types
   local event_type = event:getType()
   local system_key = event:systemKey()  
   local pressed_key = system_key.key
-  -- log_d("keypress event_type: "..(event_type or "<nil>").." pressed_key: "..(pressed_key or "<nil>").."")
 
   -- reject key press events that we aren't interested in. 
   if event_type ~= hs.eventtap.event.types.systemDefined or not tv_is_current_audio_device() then
-    log_d("keypress context is not audio related. Bailing.")
     return
   end
 
-  -- [ ] Can we store this LUT as a global (with up/down/mute/unmute)
-  -- A look up table from keyboard key name to LGTV command
-  local keys_to_commands = {['SOUND_UP']="volumeUp", ['SOUND_DOWN']="volumeDown"}
-  if system_key.down and (pressed_key == 'MUTE' or keys_to_commands[pressed_key] ~= nil) then
-
+  if system_key.down and (keys_to_commands[pressed_key] ~= nil) then
     -- If key is MUTE, decipher if we need to send unmute or mute or unmute command
     if pressed_key == 'MUTE' then
-      -- invert our mute status.
+      -- toggle mute_status, possibly modify pressed_key
       mute_status = not mute_status
-
-      -- insert the mute/unmute command into the look up table
-      local mute_command = "mute "..tostring(mute_status)
-      keys_to_commands['MUTE'] = mute_command
-      log_d("keys_to_commands['MUTE'] "..tostring(keys_to_commands['MUTE'])..".")
+      if not mute_status then 
+        pressed_key = 'UNMUTE'
+      end
     end
 
-    log_d("will execute_command for "..pressed_key..": "..keys_to_commands[pressed_key].."")
+    log_d("-- pressed_key: "..tostring(pressed_key)..".")
+    log_d("-- keys_to_commands['"..tostring(pressed_key).."'] "..tostring(keys_to_commands[pressed_key])..".")
+    log_d("-- will execute_command for "..pressed_key..": "..keys_to_commands[pressed_key].."")
     exec_command(keys_to_commands[pressed_key])
   end
 end)
@@ -260,6 +261,8 @@ if not disable_audio_control then
   local audio_status = hs.json.decode(exec_command("audioStatus"):gmatch('%b{}')())
   mute_status = audio_status["payload"]["mute"]
   log_d("Did fetch initial mute_status: "..(tostring(mute_status) or "<nil>").."")
+
+  -- [ ] What if computer is muted and TV is not? Can we query for this and align them?
 
   -- Start listening for keypress events. 
   tap:start()
