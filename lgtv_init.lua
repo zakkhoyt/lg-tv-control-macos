@@ -221,9 +221,6 @@ watcher = hs.caffeinate.watcher.new(
   end
 )
 
-
--- [ ] TV audio GUI vs mac audio GUI (misaligned)
--- [ ] Can we reject repeat key (holding down the key)?
 -- Listen for key press events. Specifically volumeUp, volumeDown, and mute keys. 
 tap = hs.eventtap.new({ hs.eventtap.event.types.keyDown, hs.eventtap.event.types.systemDefined }, function(event)
   local event_type = event:getType()
@@ -236,6 +233,13 @@ tap = hs.eventtap.new({ hs.eventtap.event.types.keyDown, hs.eventtap.event.types
   end
 
   if system_key.down and (keys_to_commands[pressed_key] ~= nil) then
+    -- -- TODO: Can we reject repeat key (holding down the key)?
+    -- -- Ignore repeat keypress (holding down the key)
+    -- if system_key["repeat"] then 
+    --   log_d("Ignoring repeat for pressed_key: "..tostring(pressed_key)..".")
+    --   return
+    -- end
+    
     -- If key is MUTE, decipher if we need to send unmute or mute or unmute command
     if pressed_key == 'MUTE' then
       -- toggle mute_status, possibly modify pressed_key
@@ -263,7 +267,8 @@ if not disable_audio_control then
   log_d("Did fetch initial mute_status: "..(tostring(mute_status) or "<nil>").."")
 
   -- [ ] What if computer is muted and TV is not? Can we query for this and align them?
-
+  -- [ ] What if computer volume is say, 2% and the TV volume is say 25%. Can we query for this and align them?
+ 
   -- Start listening for keypress events. 
   tap:start()
 end
