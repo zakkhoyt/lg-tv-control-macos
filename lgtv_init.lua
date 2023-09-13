@@ -42,10 +42,14 @@ function lgtv_current_app_id()
 end
 
 function tv_is_connected()
+  log_d("tv_is_connected() will list connected TVs...")
   for i, v in ipairs(connected_tv_identifiers) do
+    log_d("  inspecting: "..v..".")
     if hs.screen.find(v) ~= nil then
-      log_d(v.." is connected")
+      log_d("  "..v.." is connected.")
       return true
+    else 
+
     end
   end
 
@@ -55,16 +59,19 @@ end
 
 function tv_is_current_audio_device()
   local current_audio_device = hs.audiodevice.current().name
-
+  log_d("Iterating connected audio devices to look for '"..current_audio_device.."' (current_audio_device)")
   for i, v in ipairs(connected_tv_identifiers) do
+    log_d("  inspecting: "..v..".")
     if current_audio_device == v then
       -- [ ] Dont' print this every time the function is called
-      -- log_d(v.." is the current audio device (["..tostring(i).."])")
+      log_d("   "..v.." is the current audio device (["..tostring(i).."])")
       return true
+    else 
+      log_d("   "..v.." is the NOT current audio device (["..tostring(i).."]). Inspecting next...")
     end
   end
 
-  log_d(current_audio_device.." is the current audio device.")
+  log_d(" "..current_audio_device.." could not be found in list. ")
   return false
 end
 
@@ -165,10 +172,14 @@ if debug then
   end
 end
 
+-- TODO: [ ] rename watcher
+-- Watch for display and system sleep/wake/power events
+-- https://www.hammerspoon.org/docs/hs.caffeinate.watcher.html
 watcher = hs.caffeinate.watcher.new(
   function(event_type)
     event_name = event_type_description(event_type)
-    log_d("Received event: "..(event_type or "").." "..(event_name))
+    log_d("---- ---- ---- ---- ---- ---- ---- ---- ")
+    log_d("Watcher event: "..(event_type or "").." "..(event_name))
 
     if lgtv_disabled() then
       log_d("LGTV feature disabled. Skipping.")
@@ -225,14 +236,22 @@ watcher = hs.caffeinate.watcher.new(
 -- TODO:     We might cache the volume level to help accomplish this. 
 -- TODO: [ ] Read system volume/mute, sync with TV (not sure if hammerspoon provides a way to read that)
 
+
+-- TODO: [ ] rename tap
 -- Listen for key press events. Specifically volumeUp, volumeDown, and mute keys. 
 tap = hs.eventtap.new({ hs.eventtap.event.types.keyDown, hs.eventtap.event.types.systemDefined }, function(event)
   local event_type = event:getType()
   local system_key = event:systemKey()  
   local pressed_key = system_key.key
 
+
   -- reject key press events that we aren't interested in. 
-  if event_type ~= hs.eventtap.event.types.systemDefined or not tv_is_current_audio_device() then
+  if event_type ~= hs.eventtap.event.types.systemDefined then
+    -- log_d("-- keypress event is not of interest. Ignoring.")
+    return
+  end
+  if not tv_is_current_audio_device() then
+    log_d("-- keypress event but !tv_is_current_audio_device. Ignoring.")
     return
   end
 
@@ -247,9 +266,11 @@ tap = hs.eventtap.new({ hs.eventtap.event.types.keyDown, hs.eventtap.event.types
       end
     end
 
-    log_d("-- keys_to_commands['"..tostring(pressed_key).."'] "..tostring(keys_to_commands[pressed_key])..".")
-    log_d("-- will execute_command for "..pressed_key..": "..keys_to_commands[pressed_key].."")
+    log_d("**** **** **** **** **** **** **** **** ")
+    log_d("Begin keypress event")
+    log_d("-- keys_to_commands['"..tostring(pressed_key).."'] == "..tostring(keys_to_commands[pressed_key])..".")
     exec_command(keys_to_commands[pressed_key])
+    log_d("End keypress event")
   end
 end)
 
@@ -265,3 +286,63 @@ if not disable_audio_control then
   -- Start listening for keypress events. 
   tap:start()
 end
+
+
+-- This is a timer object used for non-blocking sleep functionality below. 
+local screen_watcher_timer = hs.timer.doAfter(
+  0, 
+  function()
+    -- this is a dummy function so that we have a timer type variable
+  end
+)
+
+-- TODO: [ ] For what ever reason, `.new()` does not function like we want. But newWithActiveScreen has a lot more callbacks. Happy medium?
+-- screen_watcher = hs.screen.watcher.new(
+-- Watch for monitor change events (add/remove monitors). 
+-- When this happens we need to re-start the keyboard watcher (tap) 
+-- which stops responding on monitor events (in my experience).
+screen_watcher = hs.screen.watcher.newWithActiveScreen(
+  -- `active_screen_did_change` indicates if the change was due to a screen layout change (nil) or because the active screen changed (true).
+  -- https://www.hammerspoon.org/docs/hs.screen.watcher.html
+  function(active_screen_did_change)
+    log_d("^^^^ ^^^^ ^^^^ ^^^^ ^^^^ ^^^^ ^^^^ ^^^^ ")
+    log_d("Begin screen_watcher event")
+
+    if tv_is_current_audio_device() then
+      log_d("^^ tv_is_current_audio_device() is true")
+
+
+      log_d("^^ Will restart tap")
+      tap:stop()
+
+      -- 0.5 seems to be the cutoff with my setup. Bump up to 1 sec. 
+      local delay = 1
+      
+      -- log_d("^^   screen_watcher_timer.nextTrigger: "..tostring(screen_watcher_timer:nextTrigger())..".")
+      if screen_watcher_timer:running() == true then
+        log_d("^^   Cancelling wait to start a new wait.")
+        screen_watcher_timer:stop() -- stop any existing timer
+      -- else 
+      --   log_d("^^   screen_watcher_timer.running == false")
+      end
+      
+      log_d("^^ Waiting. Will call tap:start() after "..tostring(delay).." sec")
+      screen_watcher_timer = hs.timer.doAfter(
+        delay, 
+        function()
+          tap:start()
+          log_d("^^ Did restart tap")
+        end
+      )
+    else
+      log_d("^^ tv_is_current_audio_device() is false")
+    end
+
+    log_d("End screen_watcher event")
+  end
+)
+
+
+log_d("Will start screen_watcher")
+screen_watcher:start()
+log_d("Did start screen_watcher")
