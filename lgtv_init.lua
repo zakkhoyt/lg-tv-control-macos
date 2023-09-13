@@ -1,3 +1,5 @@
+
+
 local tv_input = "HDMI_2" -- Input to which your Mac is connected
 local switch_input_on_wake = true -- Switch input to Mac when waking the TV
 local prevent_sleep_when_using_other_input = true -- Prevent sleep when TV is set to other input (ie: you're watching Netflix and your Mac goes to sleep)
@@ -286,6 +288,12 @@ if not disable_audio_control then
   -- Start listening for keypress events. 
   tap:start()
 end
+
+
+
+
+
+-- TODO: [ ] pull main and see of the keyboard watcher stops responding on monitor change events. 
 
 
 -- This is a timer object used for non-blocking sleep functionality below. 
