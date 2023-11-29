@@ -1,10 +1,10 @@
-local tv_input = "HDMI_4" -- Input to which your Mac is connected
+local tv_input = "HDMI_2" -- Input to which your Mac is connected
 local switch_input_on_wake = true -- Switch input to Mac when waking the TV
 local prevent_sleep_when_using_other_input = true -- Prevent sleep when TV is set to other input (ie: you're watching Netflix and your Mac goes to sleep)
 local debug = true -- If you run into issues, set to true to enable debug messages
 -- local debug_log_file = "~/.hammerspoon/lgtv_"..tv_name..".log"
-local debug_log_dir = "~/.hammerspoon/lgtv/logs"
 local disable_lgtv = false
+local disable_audio_control = false -- Ignore volume and mute button events for controlling TV audio
 -- NOTE: You can disable this script by setting the above variable to true, or by creating a file named
 -- `disable_lgtv` in the same directory as this file, or at ~/.disable_lgtv.
 
@@ -12,10 +12,9 @@ local disable_lgtv = false
 local tv_name = "LGC1" -- Name of your TV, set when you run `lgtv auth`
 local connected_tv_identifiers = {"LG TV", "LG TV SSCR2"} -- Used to identify the TV when it's connected to this computer
 local screen_off_command = "off" -- use "screenOff" to keep the TV on, but turn off the screen.
--- local lgtv_path = "~/opt/lgtv/bin/lgtv" -- Full path to lgtv executable
-local lgtv_path = "/opt/homebrew/bin/lgtv" -- Full path to lgtv executable
--- local lgtv_cmd = lgtv_path.." "..tv_name
-local lgtv_cmd = lgtv_path.." --name "..tv_name
+local lgtv_path = "~/opt/lgtv/bin/lgtv" -- Full path to lgtv executable
+
+local lgtv_cmd = lgtv_path.." "..tv_name
 local app_id = "com.webos.app."..tv_input:lower():gsub("_", "")
 local lgtv_ssl = true -- Required for firmware 03.30.16 and up. Also requires LGWebOSRemote version 2023-01-27 or newer.
 local mute_status = false -- caches our muted state
@@ -26,7 +25,6 @@ local keys_to_commands = {
   ['MUTE']="mute true",
   ['UNMUTE']="mute false"
 }
-
 
 -- A convenience function for printing debug messages. 
 function log_d(message)
@@ -98,11 +96,9 @@ function exec_command(command)
 
     --- "ssl" must be the first argument for commands like 'startApp'. Advance it to the expected position.
     if space_loc then
-      log_d("!!!!!!!!! Captured space_loc for command: "..command)
       command = command:sub(1,space_loc).."ssl "..command:sub(space_loc+1)
     else
-      -- command = command.." ssl"
-      command = "--ssl "..command
+      command = command.." ssl"
     end
   end
 
@@ -244,7 +240,6 @@ watcher = hs.caffeinate.watcher.new(
 
 
 -- TODO: [ ] rename tap
-
 -- Listen for key press events. Specifically volumeUp, volumeDown, and mute keys. 
 tap = hs.eventtap.new({ hs.eventtap.event.types.keyDown, hs.eventtap.event.types.systemDefined }, function(event)
   local event_type = event:getType()
@@ -254,7 +249,7 @@ tap = hs.eventtap.new({ hs.eventtap.event.types.keyDown, hs.eventtap.event.types
 
   -- reject key press events that we aren't interested in. 
   if event_type ~= hs.eventtap.event.types.systemDefined then
-    log_d("-- keypress event is not of interest. Ignoring.")
+    -- log_d("-- keypress event is not of interest. Ignoring.")
     return
   end
   if not tv_is_current_audio_device() then
