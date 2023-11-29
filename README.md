@@ -40,6 +40,7 @@ By now, you should be able to run
 
 ```sh
 lgtv scan ssl
+lgtv --ssl scan
 ```
 
 and see some info about your TV. Grab your TV's IP address from the output. Then:
@@ -54,7 +55,11 @@ Now, try the following:
 
 ```sh
 lgtv MyTV swInfo ssl
-lgtv MyTV screenOff ssl
+lgtv --name LGC1 --ssl swInfo
+
+# lgtv MyTV screenOff ssl
+lgtv --name LGC1 --ssl volumeDown
+lgtv --name LGC1 --ssl volumeUp
 ```
 If everything is working as expected, your screen should turn off.
 
