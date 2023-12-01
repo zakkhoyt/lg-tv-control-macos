@@ -7,6 +7,7 @@ This script uses Hammerspoon to detect system events such as power off, sleep, a
 ## Requirements
 
 - [Hammerspoon](https://www.hammerspoon.org/)
+  - ![Accessibility access enabled](docs/images/Hammerspoon_accessibility.png)
 - Python 3
 - [LGWebOSRemote](https://github.com/klattimer/LGWebOSRemote) (version 2023-01-27 or newer)
 
@@ -112,3 +113,11 @@ lgtv MyTV startApp ssl com.webos.app.home
 lgtv MyTV startApp ssl com.apple.appletv
 ```
 
+
+
+
+```sh
+lgtv --name LGC1 --ssl listApps
+lgtv --name LGC1 --ssl startApp com.webos.app.hdmi4
+
+```

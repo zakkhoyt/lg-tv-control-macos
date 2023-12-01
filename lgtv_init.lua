@@ -1,9 +1,10 @@
+-- TODO: [ ] Update readme
+
+-- TODO: [ ] Restore values before merging 
 local tv_input = "HDMI_4" -- Input to which your Mac is connected
 local switch_input_on_wake = true -- Switch input to Mac when waking the TV
 local prevent_sleep_when_using_other_input = true -- Prevent sleep when TV is set to other input (ie: you're watching Netflix and your Mac goes to sleep)
 local debug = true -- If you run into issues, set to true to enable debug messages
--- local debug_log_file = "~/.hammerspoon/lgtv_"..tv_name..".log"
-local debug_log_dir = "~/.hammerspoon/lgtv/logs"
 local disable_lgtv = false
 -- NOTE: You can disable this script by setting the above variable to true, or by creating a file named
 -- `disable_lgtv` in the same directory as this file, or at ~/.disable_lgtv.
@@ -12,8 +13,12 @@ local disable_lgtv = false
 local tv_name = "LGC1" -- Name of your TV, set when you run `lgtv auth`
 local connected_tv_identifiers = {"LG TV", "LG TV SSCR2"} -- Used to identify the TV when it's connected to this computer
 local screen_off_command = "off" -- use "screenOff" to keep the TV on, but turn off the screen.
+
+-- TODO: [ ] Figure out how this ended up under homebrew instead of python. Can we be smart about this?
 -- local lgtv_path = "~/opt/lgtv/bin/lgtv" -- Full path to lgtv executable
 local lgtv_path = "/opt/homebrew/bin/lgtv" -- Full path to lgtv executable
+
+-- TODO: [ ] Old vs new command builder
 -- local lgtv_cmd = lgtv_path.." "..tv_name
 local lgtv_cmd = lgtv_path.." --name "..tv_name
 local app_id = "com.webos.app."..tv_input:lower():gsub("_", "")
@@ -96,14 +101,14 @@ function exec_command(command)
   if lgtv_ssl then
     space_loc = command:find(" ")
 
-    --- "ssl" must be the first argument for commands like 'startApp'. Advance it to the expected position.
-    if space_loc then
-      log_d("!!!!!!!!! Captured space_loc for command: "..command)
-      command = command:sub(1,space_loc).."ssl "..command:sub(space_loc+1)
-    else
-      -- command = command.." ssl"
-      command = "--ssl "..command
-    end
+    -- TODO: [ ] command builder
+    -- --- "ssl" must be the first argument for commands like 'startApp'. Advance it to the expected position.
+    -- if space_loc then  
+    --   command = command:sub(1,space_loc).."ssl "..command:sub(space_loc+1)
+    -- else
+    --   command = command.." ssl"
+    -- end
+    command = "--ssl "..command
   end
 
   command = lgtv_cmd.." "..command
@@ -176,6 +181,10 @@ if debug then
     log_d("Connected screens: "..dump_table(hs.screen.allScreens()))
     log_d("TV is connected? "..tostring(tv_is_connected()))
   end
+
+  -- Reloads hammerspoon's config file when directory contents change
+  log_d("*** *** Loading hs.pathwatcher")
+  local myWatcher = hs.pathwatcher.new(os.getenv("HOME") .. "/.hammerspoon/", hs.reload):start()
 end
 
 -- TODO: [ ] rename watcher
@@ -355,7 +364,8 @@ screen_watcher = hs.screen.watcher.newWithActiveScreen(
   end
 )
 
-
 log_d("Will start screen_watcher")
 screen_watcher:start()
 log_d("Did start screen_watcher")
+
+-- TODO: [ ] Can we catch when accessiblilty is not enabled (new hammerspoon setup)
