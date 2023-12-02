@@ -1,0 +1,159 @@
+[
+  {
+    "Constant": [],
+    "submodules": [],
+    "Function": [],
+    "Variable": [],
+    "stripped_doc": [],
+    "desc": "Helps an LGTV behave like a computer monitor (TODO)",
+    "Deprecated": [],
+    "type": "Module",
+    "Constructor": [],
+    "doc": "Helps an LGTV behave like a computer monitor (TODO)\n\nDownload (TODO): [https://github.com/zakkhoyt/lg-tv-control-macos)",
+    "Method": [
+      {
+        "doc": "Start LGTVMonitor\n\nParameters:\n * None",
+        "desc": "Start LGTVMonitor",
+        "stripped_doc": [
+          "Start LGTVMonitor",
+          ""
+        ],
+        "def": "LGTVMonitor:init()",
+        "notes": [],
+        "signature": "LGTVMonitor:init()",
+        "type": "Method",
+        "returns": [],
+        "name": "init",
+        "parameters": [
+          " * None"
+        ]
+      },
+      {
+        "doc": "Start LGTVMonitor\n\nParameters:\n * None",
+        "desc": "Start LGTVMonitor",
+        "stripped_doc": [
+          "Start LGTVMonitor",
+          ""
+        ],
+        "def": "LGTVMonitor:start()",
+        "notes": [],
+        "signature": "LGTVMonitor:start()",
+        "type": "Method",
+        "returns": [],
+        "name": "start",
+        "parameters": [
+          " * None"
+        ]
+      },
+      {
+        "doc": "Stop LGTVMonitor\n\nParameters:\n * None",
+        "desc": "Stop LGTVMonitor",
+        "stripped_doc": [
+          "Stop LGTVMonitor",
+          ""
+        ],
+        "def": "LGTVMonitor:stop()",
+        "notes": [],
+        "signature": "LGTVMonitor:stop()",
+        "type": "Method",
+        "returns": [],
+        "name": "stop",
+        "parameters": [
+          " * None"
+        ]
+      },
+      {
+        "doc": "Binds hotkeys for LGTVMonitor\n\nParameters:\n * mapping - A table containing hotkey modifier/key details for the following items:\n * LGTVMonitor - This will cause the configuration to be reloaded",
+        "desc": "Binds hotkeys for LGTVMonitor",
+        "stripped_doc": [
+          "Binds hotkeys for LGTVMonitor",
+          ""
+        ],
+        "def": "LGTVMonitor:bindHotkeys(mapping)",
+        "notes": [],
+        "signature": "LGTVMonitor:bindHotkeys(mapping)",
+        "type": "Method",
+        "returns": [],
+        "name": "bindHotkeys",
+        "parameters": [
+          " * mapping - A table containing hotkey modifier/key details for the following items:",
+          " * LGTVMonitor - This will cause the configuration to be reloaded"
+        ]
+      }
+    ],
+    "Command": [],
+    "items": [
+      {
+        "doc": "Binds hotkeys for LGTVMonitor\n\nParameters:\n * mapping - A table containing hotkey modifier/key details for the following items:\n * LGTVMonitor - This will cause the configuration to be reloaded",
+        "desc": "Binds hotkeys for LGTVMonitor",
+        "stripped_doc": [
+          "Binds hotkeys for LGTVMonitor",
+          ""
+        ],
+        "def": "LGTVMonitor:bindHotkeys(mapping)",
+        "notes": [],
+        "signature": "LGTVMonitor:bindHotkeys(mapping)",
+        "type": "Method",
+        "returns": [],
+        "name": "bindHotkeys",
+        "parameters": [
+          " * mapping - A table containing hotkey modifier/key details for the following items:",
+          " * LGTVMonitor - This will cause the configuration to be reloaded"
+        ]
+      },
+      {
+        "doc": "Start LGTVMonitor\n\nParameters:\n * None",
+        "desc": "Start LGTVMonitor",
+        "stripped_doc": [
+          "Start LGTVMonitor",
+          ""
+        ],
+        "def": "LGTVMonitor:init()",
+        "notes": [],
+        "signature": "LGTVMonitor:init()",
+        "type": "Method",
+        "returns": [],
+        "name": "init",
+        "parameters": [
+          " * None"
+        ]
+      },
+      {
+        "doc": "Start LGTVMonitor\n\nParameters:\n * None",
+        "desc": "Start LGTVMonitor",
+        "stripped_doc": [
+          "Start LGTVMonitor",
+          ""
+        ],
+        "def": "LGTVMonitor:start()",
+        "notes": [],
+        "signature": "LGTVMonitor:start()",
+        "type": "Method",
+        "returns": [],
+        "name": "start",
+        "parameters": [
+          " * None"
+        ]
+      },
+      {
+        "doc": "Stop LGTVMonitor\n\nParameters:\n * None",
+        "desc": "Stop LGTVMonitor",
+        "stripped_doc": [
+          "Stop LGTVMonitor",
+          ""
+        ],
+        "def": "LGTVMonitor:stop()",
+        "notes": [],
+        "signature": "LGTVMonitor:stop()",
+        "type": "Method",
+        "returns": [],
+        "name": "stop",
+        "parameters": [
+          " * None"
+        ]
+      }
+    ],
+    "Field": [],
+    "name": "LGTVMonitor"
+  }
+]

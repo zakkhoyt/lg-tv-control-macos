@@ -15,8 +15,10 @@ local connected_tv_identifiers = {"LG TV", "LG TV SSCR2"} -- Used to identify th
 local screen_off_command = "off" -- use "screenOff" to keep the TV on, but turn off the screen.
 
 -- TODO: [ ] Figure out how this ended up under homebrew instead of python. Can we be smart about this?
--- local lgtv_path = "~/opt/lgtv/bin/lgtv" -- Full path to lgtv executable
-local lgtv_path = "/opt/homebrew/bin/lgtv" -- Full path to lgtv executable
+local lgtv_path = "~/opt/lgtv/bin/lgtv" -- Full path to lgtv executable (single user python install)
+-- local lgtv_path = "/opt/lgtv/bin/lgtv" -- Full path to lgtv executable (all users python install)
+-- local lgtv_path = "/opt/homebrew/bin/lgtv" -- Full path to lgtv executable (all users homebrew install)
+
 
 -- TODO: [ ] Old vs new command builder
 -- local lgtv_cmd = lgtv_path.." "..tv_name
