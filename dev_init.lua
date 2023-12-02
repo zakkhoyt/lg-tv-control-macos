@@ -96,4 +96,7 @@ if autoReloadConfig then
   installConfigPathWatcher()
 end 
 
-
+log_d("~~~~ Loading spoon: LGTVMonitor")
+lgtvs = hs.loadSpoon("LGTVMonitor")
+lgtvs.start()
+-- lgtvs.stop()

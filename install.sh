@@ -17,15 +17,16 @@ if [[ "$1" == "dev" ]]; then
 elif [[ "$1" == "spoon" ]]; then
   LGTV_SPOON_DIR="$SCRIPT_DIR/LGTVMonitor.spoon"
 
-  # Create spoon documentation
-  # shellcheck disable=SC2164
-  pushd "$LGTV_SPOON_DIR"
-  hs -c "hs.doc.builder.genJSON(\"$(pwd)\")" | jq  > docs.json
-  # shellcheck disable=SC2164
+  # # Create spoon documentation
+  # # shellcheck disable=SC2164
+  # pushd "$LGTV_SPOON_DIR"
+  # hs -c "hs.doc.builder.genJSON(\"$(pwd)\")" | jq  > docs.json
+  # # shellcheck disable=SC2164
 
   # Ensure spoons dir exists
   mkdir -p "$SPOONS_DIR"
   cp -R "$LGTV_SPOON_DIR" "$SPOONS_DIR"
+  cp "$SCRIPT_DIR/dev_init.lua" "$HOME/.hammerspoon/init.lua"
 else 
   cp "$SCRIPT_DIR/lgtv_init.lua" "$HOME/.hammerspoon/init.lua"
 fi
