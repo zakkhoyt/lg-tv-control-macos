@@ -18,44 +18,72 @@ obj.homepage = "https://github.com/zakkhoyt/lg-tv-control-macos"
 
 
 
---- ReloadConfiguration.watch_paths
---- Variable
---- List of directories to watch for changes, defaults to hs.configdir
--- obj.watch_paths = { hs.configdir }
+-- Point = {x = 0, y = 0}
+-- Point.__index = Point
 
--- -- TODO: [ ] Restore values before merging 
--- obj.tv_input = "HDMI_4" -- Input to which your Mac is connected
--- obj.switch_input_on_wake = true -- Switch input to Mac when waking the TV
--- obj.prevent_sleep_when_using_other_input = true -- Prevent sleep when TV is set to other input (ie: you're watching Netflix and your Mac goes to sleep)
--- obj.debug = true -- If you run into issues, set to true to enable debug messages
--- obj.disable_lgtv = false
--- -- NOTE: You can disable this script by setting the above variable to true, or by creating a file named
--- -- `disable_lgtv` in the same directory as this file, or at ~/.disable_lgtv.
+-- function Point:create(o)
+--   o.parent = self
+--   return o
+-- end
 
--- -- You likely will not need to change anything below this line
--- obj.tv_name = "LGC1" -- Name of your TV, set when you run `lgtv auth`
--- obj.connected_tv_identifiers = {"LG TV", "LG TV SSCR2"} -- Used to identify the TV when it's connected to this computer
--- obj.screen_off_command = "off" -- use "screenOff" to keep the TV on, but turn off the screen.
+-- function Point:move(p)
+--   -- self.x = self.x + p.x
+--   -- self.y = (self.y or 0) + (p.y or 0)
+-- end
 
--- -- TODO: [ ] Figure out how this ended up under homebrew instead of python. Can we be smart about this?
--- obj.lgtv_path = "~/opt/lgtv/bin/lgtv" -- Full path to lgtv executable (single user python install)
--- -- obj.lgtv_path = "/opt/lgtv/bin/lgtv" -- Full path to lgtv executable (all users python install)
--- -- obj.lgtv_path = "/opt/homebrew/bin/lgtv" -- Full path to lgtv executable (all users homebrew install)
+-- -- function Point:print(name)
+-- --   print("Point: "..name)
+-- --   print("Point.x: "..self.x)
+-- --   print("Point.y: "..self.y)
+-- --   print("Point.version: "..self.version)
+-- -- end
 
+-- function Point:print(point, name)
+--   print("Point: "..name)
+--   print("Point.x: "..point.x)
+--   print("Point.y: "..(point.y or "-"))
+-- end
 
--- -- TODO: [ ] Old vs new command builder
--- -- obj.lgtv_cmd = lgtv_path.." "..tv_name
--- obj.lgtv_cmd = lgtv_path.." --name "..tv_name
--- obj.app_id = "com.webos.app."..tv_input:lower():gsub("_", "")
--- obj.lgtv_ssl = true -- Required for firmware 03.30.16 and up. Also requires LGWebOSRemote version 2023-01-27 or newer.
--- obj.mute_status = false -- caches our muted state
--- -- A look up table from keyboard key to LGTV volume command
--- obj.keys_to_commands = {
---   ['SOUND_UP']="volumeUp", 
---   ['SOUND_DOWN']="volumeDown",
---   ['MUTE']="mute true",
---   ['UNMUTE']="mute false"
--- }
+-- All about classes, scope, static, instance, inheritance:
+-- https://paulwatt526.github.io/wattageTileEngineDocs/luaOopPrimer.html#public-functions
+local Point = {}
+Point.new = function(x, y)
+  -- private vars
+  local self = {}
+  local _x = 1
+
+  -- private functions
+  local function _print()
+    print("self.x: "..self.x)
+    print("self.y: "..self.y)
+    print("_x: "..(_x or "n/a"))
+  end
+
+  -- public  vars
+  self.x = (x or 0)
+  self.y = (y or 0)
+  
+  -- public functions
+  function self.move(x, y)
+    _x = self.x
+    self.x = x
+    self.y = y
+  end
+  
+  function self.print()
+    _print()
+  end
+  
+  return self
+end
+
+function Point:numberOfValue()
+  print("A point has 2 values")
+end
+
+function Point.someStatic()
+  print("static A point has 2 values")
+end
 
 -- ********************** Public interface 
 
@@ -66,8 +94,37 @@ obj.homepage = "https://github.com/zakkhoyt/lg-tv-control-macos"
 --- Parameters:
 ---  * None
 function obj:init()
-    print("LGTVMonitor obj:init() called")
-    return self
+  print("LGTVMonitor obj:init() called")
+
+  --
+  -- creating points
+  --
+  -- p1 = Point:create{x = 10, y = 20}
+  -- Point:print(p1, "p1")
+  
+  -- p2 = Point:create{x = 10}  -- y will be inherited until it is set
+  -- Point:print(p2, "p2")
+  
+  -- --
+  -- -- example of a method invocation
+  -- --
+  -- p1:move(p2)
+  -- Point:print(p1, "p1")
+
+  -- instantiate
+  local p1 = Point.new(2, 3)
+
+  -- instance methods
+  p1.move(10, 20)
+  p1.print()
+
+  -- static functions
+  Point.numberOfValue()
+  Point.someStatic()
+  Point:numberOfValue()
+  Point:someStatic()
+
+  return self
 end
 
 
@@ -79,7 +136,7 @@ end
 ---  * None
 function obj:start()
     print("LGTVMonitor obj:start() called")
-    bootstrap()
+    -- bootstrap()
     return self
 end
 
