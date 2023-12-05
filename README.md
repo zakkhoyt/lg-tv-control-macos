@@ -117,6 +117,8 @@ lgtv MyTV startApp ssl com.apple.appletv
 
 
 ```sh
+lgtv --name LGC1 --ssl on
+lgtv --name LGC1 --ssl screenOn
 lgtv --name LGC1 --ssl listApps
 lgtv --name LGC1 --ssl startApp com.webos.app.hdmi4
 
