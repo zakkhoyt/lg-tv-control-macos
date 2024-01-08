@@ -297,12 +297,18 @@ watcher:start()
 if not disable_audio_control then
   -- Query the TV's mute status and store so that we don't need to
   -- execute a query on each mute key press.
-  local audio_status = hs.json.decode(exec_command("audioStatus"):gmatch('%b{}')())
-  mute_status = audio_status["payload"]["mute"]
-  log_d("Initial mute_status: "..(tostring(mute_status) or "<nil>").."")
- 
-  -- Start listening for keypress events. 
-  tap:start()
+  local audio_status_json = exec_command("audioStatus"):gmatch('%b{}')()
+  if audio_status_json == nil then
+    -- TODO: [ ] Can we detect when a display is connected?
+    log_d("audio_status_json == nil (is LGTV connected?)")
+  else
+    local audio_status = hs.json.decode(audio_status_json)
+    mute_status = audio_status["payload"]["mute"]
+    log_d("Initial mute_status: "..(tostring(mute_status) or "<nil>").."")
+
+    -- Start listening for keypress events. 
+    tap:start()
+  end
 end
 
 
