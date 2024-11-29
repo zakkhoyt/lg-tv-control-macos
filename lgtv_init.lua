@@ -5,7 +5,9 @@ local tv_input = "HDMI_4" -- Input to which your Mac is connected
 local switch_input_on_wake = true -- Switch input to Mac when waking the TV
 local prevent_sleep_when_using_other_input = true -- Prevent sleep when TV is set to other input (ie: you're watching Netflix and your Mac goes to sleep)
 local debug = true -- If you run into issues, set to true to enable debug messages
-local debug_log_to_file = true -- If you want Hammerspoon's console output to be written to a file, set to true
+-- If you want Hammerspoon's console output to be written to a file, set to true. 
+-- Turn this off after debugging, lest you end up with enormous log files over time. 
+local debug_log_to_file = true 
 local disable_lgtv = false
 -- NOTE: You can disable this script by setting the above variable to true, or by creating a file named
 -- `disable_lgtv` in the same directory as this file, or at ~/.disable_lgtv.
@@ -35,6 +37,8 @@ local keys_to_commands = {
   ['UNMUTE']="mute false"
 }
 
+hs.hotkey.bind("Ctrl-Cmd", "J", hs.toggleConsole)
+
 -- TODO: zakkhoyt - rolling file name per day?
 -- Override Hammerspoon's print with print that logs to file, not just HS console.
 -- Source: https://github.com/Hammerspoon/hammerspoon/issues/1684#issuecomment-720039668
@@ -46,6 +50,7 @@ if debug_log_to_file then
   debug_log_dir = debug_log_dir:gsub("~", os.getenv("HOME"))
   debug_log_file = debug_log_dir.."/"..tv_name..".log"
   os.execute("mkdir -p "..debug_log_dir)
+  os.execute("rm -f "..debug_log_file)
   debug_log_file_handle = assert(io.open(debug_log_file, "a"))
   debug_log_file_handle:setvbuf("line")
   local old_print = print -- Save us from recursion overflow
@@ -103,7 +108,7 @@ function tv_is_current_audio_device()
     log_d("  inspecting: "..v..".")
     if current_audio_device == v then
       -- [ ] Dont' print this every time the function is called
-      log_d("   "..v.." is the current audio device (["..tostring(i).."])")
+      log_d("   "..tostring(i).."] "..v.." located!")
       return true
     else 
       log_d("   "..v.." is the NOT current audio device (["..tostring(i).."]). Inspecting next...")
