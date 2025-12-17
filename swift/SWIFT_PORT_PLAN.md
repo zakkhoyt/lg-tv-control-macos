@@ -1,7 +1,8 @@
 
-
+<!-- 
 # TODO: zakkhoyt AI - This document outlines plans to create a Swift package with a couple of targets (no Xcode required)
-
+Read the full document then implement through phase 6
+ -->
 
 ## Swift Port Plan: LGTVController / LGTVWebOSController
 
