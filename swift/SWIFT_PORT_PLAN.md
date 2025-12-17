@@ -1,6 +1,11 @@
+
+
+# TODO: zakkhoyt AI - This document outlines plans to create a Swift package with a couple of targets (no Xcode required)
+
+
 ## Swift Port Plan: LGTVController / LGTVWebOSController
 
-This plan is for a remote coding agent to create a Swift/Xcode port of klattimer/LGWebOSRemote, focused on a macOS command‑line tool that speaks to an LG C1 TV over WebSockets (wss) and mimics the existing `lgtv` Python CLI.
+This plan is for a remote coding agent to create a Swift port of klattimer/LGWebOSRemote, focused on a macOS command‑line tool that speaks to an LG C1 TV over WebSockets (wss) and mimics the existing `lgtv` Python CLI.
 
 Repository: `cmer/lg-tv-control-macos` (branch: `zakk/2024`)
 Working dir: `swift/`
@@ -36,9 +41,6 @@ Constraints / Notes:
 		 - `.library(name: "LGTVWebOSController", targets: ["LGTVWebOSController"])`
 		 - `.executable(name: "lgtv", targets: ["LGTVControllerCLI"])`
 
-3. Xcode Project Generation
-	 - Generate an Xcode project with `swift package generate-xcodeproj` if still supported, or open the package directly in Xcode.
-	 - Confirm the executable runs from Xcode and from the command line via `swift run lgtv --help`.
 
 Deliverables for Phase 0:
 - A compiling Swift package with stubbed library + executable targets and working `--help` output.
@@ -220,13 +222,13 @@ Deliverables for Phase 5:
 
 1. Install/Run Story
 	 - Provide `make` or simple shell script to:
-		 - Build the Swift package.
+		 - Build the Swift package via Swift Package Manager.
 		 - Install the `lgtv` binary into `/opt/homebrew/bin` or another path under user control.
 	 - Document how to switch between Python and Swift versions during transition.
 
-2. Xcode Integration
-	 - Ensure the Xcode project runs the CLI with easily tweakable arguments.
-	 - Optionally add a scheme for quick `swInfo` or `getForegroundAppInfo` debugging.
+2. VS Code / SwiftPM Integration
+	 - Ensure the package can be opened and worked on comfortably in VS Code.
+	 - Optionally add VS Code tasks for `swift build`, `swift test`, and a convenient `swift run lgtv --name LGC1 --ssl swInfo` command.
 
 3. Docs
 	 - Update or add docs under `docs/` describing:

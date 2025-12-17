@@ -7,7 +7,7 @@ Write it to: /Users/zakkhoyt/code/repositories/z2k/github/lg-tv-control-macos/sw
  -->
 
 
-The goal here is to create an Xcode project that is a swift port of https://github.com/klattimer/LGWebOSRemote
+The goal here is to create a Swift Package Manager project (no Xcode required) that is a Swift port of https://github.com/klattimer/LGWebOSRemote
 IE: A command line tool to issue websockets commands to the TV, receive, decode, the print to stdout. 
 
 The hammerspoon layer can come later in a phase 2 or 3. 
