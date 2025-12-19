@@ -1,6 +1,6 @@
 import ArgumentParser
 
-@available(macOS 10.15, *)
+@available(macOS 10.15, macCatalyst 13, iOS 13, tvOS 13, watchOS 6, *)
 struct LGTVControllerCLI: AsyncParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "lgtv",
@@ -70,5 +70,3 @@ struct LGTVControllerCLI: AsyncParsableCommand {
         ]
     )
 }
-
-LGTVControllerCLI.main()
