@@ -170,9 +170,9 @@ lgtv auth 192.168.1.100 LivingRoom --ssl
 🔧 MAC Address detected: aa:bb:cc:dd:ee:ff
 
 🎉 You can now control your TV with commands like:
-   lgtv --name LivingRoom --ssl sw-info
-   lgtv --name LivingRoom --ssl volume-up
-   lgtv --name LivingRoom --ssl off
+  lgtv sw-info --name LivingRoom --ssl
+  lgtv volume-up --name LivingRoom --ssl
+  lgtv off --name LivingRoom --ssl
 ```
 
 ### Step 4: Test Your Connection
@@ -181,14 +181,14 @@ Verify everything works:
 
 ```bash
 # Get TV information
-lgtv --name LivingRoom --ssl sw-info
+lgtv sw-info --name LivingRoom --ssl
 
 # List installed apps
-lgtv --name LivingRoom --ssl list-apps
+lgtv list-apps --name LivingRoom --ssl
 
 # Test volume control
-lgtv --name LivingRoom --ssl volume-up
-lgtv --name LivingRoom --ssl volume-down
+lgtv volume-up --name LivingRoom --ssl
+lgtv volume-down --name LivingRoom --ssl
 ```
 
 **Success Indicators:**
@@ -243,11 +243,11 @@ Add to `~/.zshrc` or `~/.bashrc`:
 
 ```bash
 # TV Control Aliases
-alias tv='lgtv --name LivingRoom --ssl'
-alias tv-on='lgtv --name LivingRoom --ssl screen-on'
-alias tv-off='lgtv --name LivingRoom --ssl screen-off'
-alias tv-vol-up='lgtv --name LivingRoom --ssl volume-up'
-alias tv-vol-down='lgtv --name LivingRoom --ssl volume-down'
+tv() { lgtv "$@" --name LivingRoom --ssl; }
+alias tv-on='lgtv screen-on --name LivingRoom --ssl'
+alias tv-off='lgtv screen-off --name LivingRoom --ssl'
+alias tv-vol-up='lgtv volume-up --name LivingRoom --ssl'
+alias tv-vol-down='lgtv volume-down --name LivingRoom --ssl'
 ```
 
 Usage:
@@ -264,7 +264,7 @@ Use macOS Shortcuts app to create global hotkeys:
 1. Open **Shortcuts** app
 2. Create new shortcut
 3. Add **Run Shell Script** action
-4. Enter: `lgtv --name LivingRoom --ssl volume-up`
+4. Enter: `lgtv volume-up --name LivingRoom --ssl`
 5. Assign keyboard shortcut
 
 ### Hammerspoon Automation
@@ -329,8 +329,8 @@ lgtv auth 192.168.1.101 Bedroom --ssl
 
 Control different TVs:
 ```bash
-lgtv --name LivingRoom --ssl off
-lgtv --name Bedroom --ssl off
+lgtv off --name LivingRoom --ssl
+lgtv off --name Bedroom --ssl
 ```
 
 ### SSL vs Non-SSL

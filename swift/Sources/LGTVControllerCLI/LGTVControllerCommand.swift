@@ -12,7 +12,7 @@ struct LGTVControllerCLI: AsyncParsableCommand {
           1. Run 'lgtv setup' for step-by-step setup guide
           2. Run 'lgtv scan --ssl' to find your TV
           3. Run 'lgtv auth <IP> <NAME> --ssl' to pair with your TV
-          4. Run 'lgtv --name <NAME> --ssl sw-info' to test connection
+          4. Run 'lgtv sw-info --name <NAME> --ssl' to test connection
         """,
         version: "0.1.0",
         subcommands: [

@@ -76,6 +76,7 @@ public final class LGTVWebOSClient: @unchecked Sendable {
     private let mac: String?
     private let hostname: String?
     private let clientKey: String?
+    private var negotiatedClientKey: String?
     private let useSSL: Bool
     
     private var ws: WebSocket?
@@ -128,14 +129,25 @@ public final class LGTVWebOSClient: @unchecked Sendable {
         }.cascadeFailure(to: promise)
         
         self.ws = try await promise.futureResult.get()
-        
-        // Setup message handler
-        ws?.onText { [weak self] ws, text in
-            self?.handleMessage(text)
+
+        guard let ws = self.ws else {
+            throw LGTVError.notConnected
+        }
+
+        // Setup message handler on the socket's event loop to satisfy NIOLoopBound
+        ws.eventLoop.execute { [weak self, weak ws] in
+            ws?.onText { [weak self] _, text in
+                self?.handleMessage(text)
+            }
         }
         
         // Perform handshake
         try await performHandshake()
+    }
+
+    /// The client key that should be stored after pairing (either provided or negotiated)
+    public var currentClientKey: String? {
+        negotiatedClientKey ?? clientKey
     }
     
     /// Perform the initial handshake with the TV
@@ -193,12 +205,19 @@ public final class LGTVWebOSClient: @unchecked Sendable {
         
         try await sendMessage(message)
         
-        // Wait for handshake to complete
-        try await Task.sleep(nanoseconds: 1_000_000_000) // 1 second
-        
-        if !handshakeComplete {
-            throw LGTVError.handshakeFailed
+        // Wait up to 30 seconds for user to approve pairing on the TV
+        let timeoutNanoseconds: UInt64 = 30 * 1_000_000_000
+        let pollInterval: UInt64 = 100_000_000 // 0.1s
+        var waited: UInt64 = 0
+        while waited < timeoutNanoseconds {
+            if handshakeComplete {
+                return
+            }
+            try await Task.sleep(nanoseconds: pollInterval)
+            waited += pollInterval
         }
+        
+        throw LGTVError.handshakeFailed
     }
     
     /// Send a command to the TV
@@ -250,6 +269,10 @@ public final class LGTVWebOSClient: @unchecked Sendable {
             if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
                 if let type = json["type"] as? String, type == "registered" {
                     handshakeComplete = true
+                    if let payload = json["payload"] as? [String: Any],
+                       let key = payload["client-key"] as? String {
+                        negotiatedClientKey = key
+                    }
                 }
                 
                 // Print the response
@@ -268,6 +291,7 @@ public final class LGTVWebOSClient: @unchecked Sendable {
         try? await ws?.close().get()
         ws = nil
         handshakeComplete = false
+        negotiatedClientKey = nil
     }
 }
 

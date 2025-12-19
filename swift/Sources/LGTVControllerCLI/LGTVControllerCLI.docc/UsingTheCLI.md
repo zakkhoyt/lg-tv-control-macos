@@ -40,16 +40,16 @@ Get information about your TV:
 
 ```bash
 # Software information
-lgtv --name LGC1 --ssl sw-info
+lgtv sw-info --name LGC1 --ssl
 
 # Current app
-lgtv --name LGC1 --ssl get-foreground-app-info
+lgtv get-foreground-app-info --name LGC1 --ssl
 
 # List all installed apps
-lgtv --name LGC1 --ssl list-apps
+lgtv list-apps --name LGC1 --ssl
 
 # List available inputs
-lgtv --name LGC1 --ssl list-inputs
+lgtv list-inputs --name LGC1 --ssl
 ```
 
 ### Volume Control
@@ -58,17 +58,17 @@ Adjust audio settings:
 
 ```bash
 # Increase volume
-lgtv --name LGC1 --ssl volume-up
+lgtv volume-up --name LGC1 --ssl
 
 # Decrease volume
-lgtv --name LGC1 --ssl volume-down
+lgtv volume-down --name LGC1 --ssl
 
 # Set specific volume level (0-100)
-lgtv --name LGC1 --ssl set-volume 25
+lgtv set-volume 25 --name LGC1 --ssl
 
 # Mute/unmute
-lgtv --name LGC1 --ssl mute true
-lgtv --name LGC1 --ssl mute false
+lgtv mute true --name LGC1 --ssl
+lgtv mute false --name LGC1 --ssl
 ```
 
 ### Power Control
@@ -77,16 +77,16 @@ Manage TV power state:
 
 ```bash
 # Turn TV off
-lgtv --name LGC1 --ssl off
+lgtv off --name LGC1 --ssl
 
 # Turn screen off (audio continues)
-lgtv --name LGC1 --ssl screen-off
+lgtv screen-off --name LGC1 --ssl
 
 # Turn screen on
-lgtv --name LGC1 --ssl screen-on
+lgtv screen-on --name LGC1 --ssl
 
 # Turn TV on (Wake-on-LAN, requires MAC address)
-lgtv --name LGC1 on
+lgtv on --name LGC1
 ```
 
 ### Input and App Control
@@ -95,11 +95,11 @@ Switch inputs and launch apps:
 
 ```bash
 # Switch to HDMI input
-lgtv --name LGC1 --ssl set-input HDMI_1
+lgtv set-input HDMI_1 --name LGC1 --ssl
 
 # Launch an app
-lgtv --name LGC1 --ssl start-app com.webos.app.hdmi1
-lgtv --name LGC1 --ssl start-app com.apple.appletv
+lgtv start-app com.webos.app.hdmi1 --name LGC1 --ssl
+lgtv start-app com.apple.appletv --name LGC1 --ssl
 ```
 
 ## Command Flow
@@ -112,7 +112,7 @@ sequenceDiagram
     participant Client
     participant TV
     
-    User->>CLI: lgtv --name LGC1 --ssl sw-info
+    User->>CLI: lgtv sw-info --name LGC1 --ssl
     CLI->>Config: Load config for "LGC1"
     Config-->>CLI: LGTVConfig
     
@@ -220,10 +220,10 @@ The Swift port maintains command compatibility but has some differences:
 Create shell aliases for common commands:
 
 ```bash
-alias tv-on="lgtv --name LGC1 on"
-alias tv-off="lgtv --name LGC1 --ssl off"
-alias tv-vol-up="lgtv --name LGC1 --ssl volume-up"
-alias tv-vol-down="lgtv --name LGC1 --ssl volume-down"
+alias tv-on="lgtv on --name LGC1"
+alias tv-off="lgtv off --name LGC1 --ssl"
+alias tv-vol-up="lgtv volume-up --name LGC1 --ssl"
+alias tv-vol-down="lgtv volume-down --name LGC1 --ssl"
 ```
 
 ### Piping Output
@@ -232,13 +232,13 @@ Process JSON responses with `jq`:
 
 ```bash
 # Extract just the model name
-lgtv --name LGC1 --ssl sw-info | jq '.payload.model_name'
+lgtv sw-info --name LGC1 --ssl | jq '.payload.model_name'
 
 # Get list of app IDs
-lgtv --name LGC1 --ssl list-apps | jq '.payload.apps[].id'
+lgtv list-apps --name LGC1 --ssl | jq '.payload.apps[].id'
 
 # Find HDMI inputs
-lgtv --name LGC1 --ssl list-inputs | jq '.payload.devices[] | select(.id | startswith("HDMI"))'
+lgtv list-inputs --name LGC1 --ssl | jq '.payload.devices[] | select(.id | startswith("HDMI"))'
 ```
 
 ### Scripting
@@ -249,9 +249,9 @@ Use in shell scripts for automation:
 #!/bin/bash
 # Turn on TV and switch to Apple TV
 
-lgtv --name LGC1 on
+lgtv on --name LGC1
 sleep 5  # Wait for TV to boot
-lgtv --name LGC1 --ssl start-app com.apple.appletv
+lgtv start-app com.apple.appletv --name LGC1 --ssl
 ```
 
 ## See Also

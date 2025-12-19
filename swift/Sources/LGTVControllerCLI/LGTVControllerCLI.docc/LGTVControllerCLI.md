@@ -13,7 +13,7 @@ New to the CLI? Start here:
 1. Run `lgtv setup` for interactive setup guide
 2. Run `lgtv scan --ssl` to discover your TV
 3. Run `lgtv auth <IP> <NAME> --ssl` to pair with your TV
-4. Run `lgtv --name <NAME> --ssl sw-info` to test
+4. Run `lgtv sw-info --name <NAME> --ssl` to test
 
 ## Topics
 
@@ -75,7 +75,7 @@ New to the CLI? Start here:
 All commands follow this pattern:
 
 ```bash
-lgtv [--name NAME] [--ssl] <subcommand> [arguments]
+lgtv <subcommand> [arguments] [--name NAME] [--ssl]
 ```
 
 ### Global Options
@@ -104,32 +104,32 @@ lgtv auth 192.168.1.100 MyTV --ssl
 
 ```bash
 # Get software information
-lgtv --name MyTV --ssl sw-info
+lgtv sw-info --name MyTV --ssl
 
 # Control volume
-lgtv --name MyTV --ssl volume-up
-lgtv --name MyTV --ssl volume-down
-lgtv --name MyTV --ssl set-volume 25
+lgtv volume-up --name MyTV --ssl
+lgtv volume-down --name MyTV --ssl
+lgtv set-volume 25 --name MyTV --ssl
 
 # Power control
-lgtv --name MyTV --ssl off
-lgtv --name MyTV --ssl screen-off
+lgtv off --name MyTV --ssl
+lgtv screen-off --name MyTV --ssl
 ```
 
 ### Advanced Usage
 
 ```bash
 # Switch input
-lgtv --name MyTV --ssl set-input HDMI_1
+lgtv set-input HDMI_1 --name MyTV --ssl
 
 # Launch app
-lgtv --name MyTV --ssl start-app com.webos.app.hdmi1
+lgtv start-app com.webos.app.hdmi1 --name MyTV --ssl
 
 # Open YouTube
-lgtv --name MyTV --ssl open-youtube-url "https://youtube.com/watch?v=dQw4w9WgXcQ"
+lgtv open-youtube-url "https://youtube.com/watch?v=dQw4w9WgXcQ" --name MyTV --ssl
 
 # Show notification
-lgtv --name MyTV --ssl notification "Hello from Mac!"
+lgtv notification "Hello from Mac!" --name MyTV --ssl
 ```
 
 ## Configuration

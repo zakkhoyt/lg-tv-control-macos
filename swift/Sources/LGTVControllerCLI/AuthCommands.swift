@@ -72,7 +72,7 @@ struct Auth: AsyncParsableCommand {
                 ip: ipAddress,
                 hostname: nil,
                 mac: macAddress,
-                clientKey: nil // Will be updated after successful pairing
+                clientKey: client.currentClientKey
             )
             
             let store = ConfigStore()
@@ -87,11 +87,14 @@ struct Auth: AsyncParsableCommand {
             if let mac = macAddress {
                 print("🔧 MAC Address detected: \(mac)")
             }
+            if let key = client.currentClientKey {
+                print("🔑 Client key saved: \(key)")
+            }
             print()
             print("🎉 You can now control your TV with commands like:")
-            print("   lgtv --name \(tvName) \(useSSL ? "--ssl " : "")sw-info")
-            print("   lgtv --name \(tvName) \(useSSL ? "--ssl " : "")volume-up")
-            print("   lgtv --name \(tvName) \(useSSL ? "--ssl " : "")off")
+            print("   lgtv sw-info --name \(tvName)\(useSSL ? " --ssl" : "")")
+            print("   lgtv volume-up --name \(tvName)\(useSSL ? " --ssl" : "")")
+            print("   lgtv off --name \(tvName)\(useSSL ? " --ssl" : "")")
             print()
             
             await client.disconnect()
@@ -384,15 +387,15 @@ struct Setup: ParsableCommand {
         Try these commands to verify everything works:
         
         # Get TV software info
-        $ lgtv --name LivingRoom --ssl sw-info
-        
+        $ lgtv sw-info --name LivingRoom --ssl
+
         # Control volume
-        $ lgtv --name LivingRoom --ssl volume-up
-        $ lgtv --name LivingRoom --ssl volume-down
-        
+        $ lgtv volume-up --name LivingRoom --ssl
+        $ lgtv volume-down --name LivingRoom --ssl
+
         # Power control
-        $ lgtv --name LivingRoom --ssl off
-        $ lgtv --name LivingRoom --ssl screen-off
+        $ lgtv off --name LivingRoom --ssl
+        $ lgtv screen-off --name LivingRoom --ssl
         """)
         
         printStep(7, "HDMI-CEC Considerations", """
@@ -414,8 +417,8 @@ struct Setup: ParsableCommand {
         
         Example shell alias in ~/.zshrc or ~/.bashrc:
         
-        alias tv-on='lgtv --name LivingRoom --ssl screen-on'
-        alias tv-off='lgtv --name LivingRoom --ssl screen-off'
+        alias tv-on='lgtv screen-on --name LivingRoom --ssl'
+        alias tv-off='lgtv screen-off --name LivingRoom --ssl'
         """)
         
         print()
