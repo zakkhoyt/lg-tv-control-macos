@@ -4,7 +4,7 @@ import PackageDescription
 let package = Package(
     name: "LGTVController",
     platforms: [
-        .macOS(.v13)
+        .macOS(.v14)
     ],
     products: [
         .library(
@@ -19,9 +19,8 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.2.0"),
         .package(url: "https://github.com/apple/swift-nio.git", from: "2.32.0"),
-        .package(url: "https://github.com/apple/swift-nio-ssl.git", from: "2.17.0")
-        // Note: we will add an explicit WebSocket dependency (either via NIO or another package)
-        // in a later phase once the security configuration and API choice are finalized.
+        .package(url: "https://github.com/apple/swift-nio-ssl.git", from: "2.17.0"),
+        .package(url: "https://github.com/vapor/websocket-kit.git", from: "2.6.0")
     ],
     targets: [
         .target(
@@ -29,7 +28,8 @@ let package = Package(
             dependencies: [
                 .product(name: "NIO", package: "swift-nio"),
                 .product(name: "NIOFoundationCompat", package: "swift-nio"),
-                .product(name: "NIOSSL", package: "swift-nio-ssl")
+                .product(name: "NIOSSL", package: "swift-nio-ssl"),
+                .product(name: "WebSocketKit", package: "websocket-kit")
             ]
         ),
         .executableTarget(

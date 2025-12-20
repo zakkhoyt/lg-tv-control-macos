@@ -1,7 +1,8 @@
 
-
+<!-- 
 # TODO: zakkhoyt AI - This document outlines plans to create a Swift package with a couple of targets (no Xcode required)
-
+Read the full document then implement through phase 6
+ -->
 
 ## Swift Port Plan: LGTVController / LGTVWebOSController
 
@@ -185,7 +186,7 @@ Goal: Recreate the Python `lgtv` CLI surface area in Swift using Swift ArgumentP
 	 - Document any differences in a short section in this repo’s README or docs.
 
 Deliverables for Phase 4:
-- `swift run lgtv --name LGC1 --ssl swInfo` works and prints JSON like the Python tool.
+- `swift run lgtv swInfo --name LGC1 --ssl` works and prints JSON like the Python tool.
 - A subset of the Python commands ported and verified end‑to‑end.
 
 ---
@@ -209,8 +210,8 @@ Goal: Implement the full set of commands from the Python CLI that are actually u
 
 3. Testing & Verification
 	 - For each high‑priority command, run side‑by‑side tests:
-		 - Python: `~/opt/lgtv/bin/lgtv --name LGC1 --ssl <command> ...`
-		 - Swift: `swift run lgtv --name LGC1 --ssl <command> ...`
+			- Python: `~/opt/lgtv/bin/lgtv --name LGC1 --ssl <command> ...`
+			- Swift: `swift run lgtv <command> --name LGC1 --ssl ...`
 	 - Compare outputs for shape and key fields.
 
 Deliverables for Phase 5:
@@ -228,7 +229,7 @@ Deliverables for Phase 5:
 
 2. VS Code / SwiftPM Integration
 	 - Ensure the package can be opened and worked on comfortably in VS Code.
-	 - Optionally add VS Code tasks for `swift build`, `swift test`, and a convenient `swift run lgtv --name LGC1 --ssl swInfo` command.
+	- Optionally add VS Code tasks for `swift build`, `swift test`, and a convenient `swift run lgtv swInfo --name LGC1 --ssl` command.
 
 3. Docs
 	 - Update or add docs under `docs/` describing:
